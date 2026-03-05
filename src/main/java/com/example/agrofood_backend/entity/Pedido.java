@@ -18,7 +18,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @Entity
 @Table(name = "pedidos")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Pedido {
 
     @Id
@@ -40,7 +40,7 @@ public class Pedido {
 
     @Builder.Default
     @Column(name = "fecha_pedido", nullable = false, updatable = false)
-    private Timestamp fechaPedido = new Timestamp(System.currentTimeMillis());
+    private java.time.LocalDate fechaPedido = java.time.LocalDate.now(java.time.ZoneId.of("America/Lima"));
 
     @Column(name = "estado_pedido", columnDefinition = "enum('pendiente','confirmado','cancelado') DEFAULT 'pendiente'")
     @Builder.Default

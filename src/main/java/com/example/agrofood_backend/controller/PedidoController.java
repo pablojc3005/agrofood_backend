@@ -28,6 +28,21 @@ public class PedidoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/usuario/{idUsuario}")
+    public ResponseEntity<List<Pedido>> getPedidosByUsuario(@PathVariable Integer idUsuario) {
+        return ResponseEntity.ok(pedidoService.findByUsuarioId(idUsuario));
+    }
+
+    @GetMapping("/usuario/{idUsuario}/hoy")
+    public ResponseEntity<Pedido> getPedidoHoyByUsuario(@PathVariable Integer idUsuario) {
+        java.time.LocalDate hoy = java.time.LocalDate.now(java.time.ZoneId.of("America/Lima"));
+        return pedidoService.findByUsuarioId(idUsuario).stream()
+                .filter(p -> p.getFechaPedido().equals(hoy))
+                .findFirst()
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
+    }
+
     @PostMapping
     public ResponseEntity<Pedido> createPedido(@RequestBody Pedido pedido) {
         return new ResponseEntity<>(pedidoService.save(pedido), HttpStatus.CREATED);

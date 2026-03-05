@@ -65,6 +65,7 @@ public interface ReporteRepository extends JpaRepository<Pedido, Integer> {
 
   @Query(value = """
       SELECT
+          p.id_pedido as idPedido,
           DATE(p.fecha_pedido) as fecha,
           (SELECT pl_e.nombre_plato FROM pedido_detalles pd_e
            JOIN platos pl_e ON pd_e.id_plato = pl_e.id_plato

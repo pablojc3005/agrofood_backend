@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,7 +50,20 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Integer id) {
+        // 1. Limpiar detalles y visitantes
+        List<PedidoDetalle> detalles = pedidoDetalleRepository.findByPedidoIdPedido(id);
+        for (PedidoDetalle det : detalles) {
+            Visitante v = det.getVisitante();
+            pedidoDetalleRepository.delete(det);
+            if (v != null) {
+                visitanteRepository.delete(v);
+            }
+        }
+        pedidoDetalleRepository.flush();
+
+        // 2. Eliminar pedido
         pedidoRepository.deleteById(id);
     }
 
@@ -78,7 +90,7 @@ public class PedidoServiceImpl implements PedidoService {
         }
 
         // 2. Calcular Total
-        BigDecimal total = BigDecimal.ZERO;
+        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
         if (menuEntrada != null)
             total = total.add(menuEntrada.getPrecioDia());
         total = total.add(menuSegundo.getPrecioDia()); // El del propio trabajador
@@ -96,11 +108,33 @@ public class PedidoServiceImpl implements PedidoService {
             }
         }
 
+        // 2.5 Validar si ya existe un pedido para hoy y eliminarlo (Modificar)
+        java.time.LocalDate hoy = java.time.LocalDate.now(java.time.ZoneId.of("America/Lima"));
+        pedidoRepository.findByUsuarioIdUsuarioAndFechaPedido(dto.getIdUsuario(), hoy)
+                .ifPresent(p -> {
+                    // 1. Eliminar detalles explícitamente si no hay cascade
+                    List<PedidoDetalle> detalles = pedidoDetalleRepository.findByPedidoIdPedido(p.getIdPedido());
+                    for (PedidoDetalle det : detalles) {
+                        Visitante v = det.getVisitante();
+                        pedidoDetalleRepository.delete(det);
+                        // Opcional: Eliminar visitante si es huérfano (solo si es dummy/visita)
+                        if (v != null) {
+                            visitanteRepository.delete(v);
+                        }
+                    }
+                    pedidoDetalleRepository.flush();
+
+                    // 2. Eliminar pedido
+                    pedidoRepository.delete(p);
+                    pedidoRepository.flush();
+                });
+
         // 3. Crear Pedido (Cabecera)
         Pedido pedido = Pedido.builder()
                 .usuario(usuario)
                 .trabajador(trabajador)
                 .menuDiario(menuSegundo)
+                .fechaPedido(hoy) // Forzamos la fecha de hoy con la zona horaria correcta
                 .notasGenerales(dto.getNotasGenerales())
                 .totalPedido(total)
                 .estadoPedido("confirmado")
