@@ -13,4 +13,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Integer> {
     List<Pedido> findByUsuarioIdUsuario(Integer idUsuario);
 
     Optional<Pedido> findByUsuarioIdUsuarioAndFechaPedido(Integer idUsuario, LocalDate fechaPedido);
+
+    long countByFechaPedido(LocalDate fechaPedido);
 }
