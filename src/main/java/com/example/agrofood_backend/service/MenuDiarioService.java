@@ -16,6 +16,8 @@ public interface MenuDiarioService {
     MenuDiarioResponseDTO save(MenuDiarioRequestDTO menuDiarioDTO);
 
     MenuDiarioResponseDTO update(Integer id, MenuDiarioRequestDTO menuDiarioDTO);
+    
+    void updateHoraLimiteByFecha(java.time.LocalDate fechaMenu, java.time.LocalTime horaLimite);
 
     void deleteById(Integer id);
 }

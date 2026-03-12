@@ -60,4 +60,8 @@ public class Pedido {
     @UpdateTimestamp
     @Column(name = "fecha_actualizacion")
     private Timestamp fechaActualizacion;
+
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private java.util.List<PedidoDetalle> detalles = new java.util.ArrayList<>();
 }

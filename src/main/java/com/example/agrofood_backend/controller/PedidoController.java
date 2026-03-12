@@ -34,11 +34,9 @@ public class PedidoController {
     }
 
     @GetMapping("/usuario/{idUsuario}/hoy")
-    public ResponseEntity<Pedido> getPedidoHoyByUsuario(@PathVariable Integer idUsuario) {
-        java.time.LocalDate hoy = java.time.LocalDate.now(java.time.ZoneId.of("America/Lima"));
-        return pedidoService.findByUsuarioId(idUsuario).stream()
-                .filter(p -> p.getFechaPedido().equals(hoy))
-                .findFirst()
+    public ResponseEntity<com.example.agrofood_backend.dto.PedidoResponseDTO> getPedidoHoyByUsuario(
+            @PathVariable Integer idUsuario) {
+        return pedidoService.findPedidoHoyByUsuario(idUsuario)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }

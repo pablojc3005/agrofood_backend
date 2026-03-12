@@ -17,4 +17,6 @@ public interface HistorialUsuarioDTO {
     Integer getRacionesExtra();
 
     BigDecimal getCostoTotal();
+
+    java.time.LocalTime getHoraLimite();
 }

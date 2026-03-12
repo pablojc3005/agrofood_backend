@@ -205,7 +205,71 @@ public class PedidoServiceImpl implements PedidoService {
                 }
             }
         }
-
         return pedido;
+    }
+
+    @Override
+    public Optional<com.example.agrofood_backend.dto.PedidoResponseDTO> findPedidoHoyByUsuario(Integer idUsuario) {
+        java.time.LocalDate hoy = java.time.LocalDate.now(java.time.ZoneId.of("America/Lima"));
+        return pedidoRepository.findByUsuarioIdUsuarioAndFechaPedido(idUsuario, hoy)
+                .map(this::mapToResponseDTO);
+    }
+
+    @Override
+    public com.example.agrofood_backend.dto.PedidoResponseDTO mapToResponseDTO(Pedido pedido) {
+        if (pedido == null)
+            return null;
+
+        com.example.agrofood_backend.dto.PedidoResponseDTO dto = com.example.agrofood_backend.dto.PedidoResponseDTO
+                .builder()
+                .idPedido(pedido.getIdPedido())
+                .idUsuario(pedido.getUsuario().getIdUsuario())
+                .username(pedido.getUsuario().getUsername())
+                .email(pedido.getUsuario().getEmail())
+                .fechaPedido(pedido.getFechaPedido())
+                .estadoPedido(pedido.getEstadoPedido())
+                .notasGenerales(pedido.getNotasGenerales())
+                .totalPedido(pedido.getTotalPedido())
+                .build();
+
+        if (pedido.getTrabajador() != null) {
+            dto.setIdTrabajador(pedido.getTrabajador().getIdTrabajador());
+            dto.setNombreTrabajador(pedido.getTrabajador().getNombres() + " " + pedido.getTrabajador().getApellidos());
+            if (pedido.getTrabajador().getArea() != null) {
+                dto.setArea(pedido.getTrabajador().getArea().getNombreArea());
+            }
+        }
+
+        if (pedido.getMenuDiario() != null) {
+            dto.setIdMenuDiario(pedido.getMenuDiario().getIdMenuDiario());
+            dto.setFechaMenu(pedido.getMenuDiario().getFechaMenu());
+            if (pedido.getMenuDiario().getHoraLimite() != null) {
+                dto.setHoraLimite(String.format("%02d:%02d",
+                        pedido.getMenuDiario().getHoraLimite().getHour(),
+                        pedido.getMenuDiario().getHoraLimite().getMinute()));
+            }
+        }
+
+        if (pedido.getDetalles() != null) {
+            List<com.example.agrofood_backend.dto.PedidoDetalleResponseDTO> detallesDTO = pedido.getDetalles().stream()
+                    .map(det -> com.example.agrofood_backend.dto.PedidoDetalleResponseDTO.builder()
+                            .idDetalle(det.getIdDetalle())
+                            .idPlato(det.getPlato().getIdPlato())
+                            .nombrePlato(det.getPlato().getNombrePlato())
+                            .categoriaPlato(det.getPlato().getCategoriaPlato() != null
+                                    ? det.getPlato().getCategoriaPlato().getNombreCategoria()
+                                    : null)
+                            .idVisitante(det.getVisitante() != null ? det.getVisitante().getIdVisitante() : null)
+                            .nombreVisitante(det.getVisitante() != null ? det.getVisitante().getNombreCompleto() : null)
+                            .cantidad(det.getCantidad())
+                            .precioUnitario(det.getPrecioUnitario())
+                            .subtotal(det.getSubtotal())
+                            .observaciones(det.getObservaciones())
+                            .build())
+                    .toList();
+            dto.setDetalles(detallesDTO);
+        }
+
+        return dto;
     }
 }

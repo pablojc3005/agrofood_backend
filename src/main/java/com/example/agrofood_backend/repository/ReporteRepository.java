@@ -77,8 +77,10 @@ public interface ReporteRepository extends JpaRepository<Pedido, Integer> {
            WHERE pd_s.id_pedido = p.id_pedido AND pd_s.id_visita IS NULL AND cat_s.nombre_categoria LIKE '%Segundo%' LIMIT 1) as segundo,
           (SELECT COALESCE(SUM(pd_t.cantidad), 0) FROM pedido_detalles pd_t WHERE pd_t.id_pedido = p.id_pedido) as totalRaciones,
           (SELECT COALESCE(SUM(pd_v.cantidad) / 2, 0) FROM pedido_detalles pd_v WHERE pd_v.id_pedido = p.id_pedido AND pd_v.id_visita IS NOT NULL) as racionesExtra,
-          p.total_pedido as costoTotal
+          p.total_pedido as costoTotal,
+          m.hora_limite as horaLimite
       FROM pedidos p
+      JOIN menus_diarios m ON p.id_menu_diario = m.id_menu_diario
       WHERE p.id_usuario = :idUsuario
         AND DATE(p.fecha_pedido) BETWEEN :fechaInicio AND :fechaFin
       ORDER BY p.fecha_pedido DESC

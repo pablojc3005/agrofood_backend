@@ -90,6 +90,12 @@ public class MenuDiarioServiceImpl implements MenuDiarioService {
         menuDiarioRepository.deleteById(id);
     }
 
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void updateHoraLimiteByFecha(java.time.LocalDate fechaMenu, java.time.LocalTime horaLimite) {
+        menuDiarioRepository.updateHoraLimiteByFecha(fechaMenu, horaLimite);
+    }
+
     private MenuDiarioResponseDTO mapToDTO(MenuDiario menu) {
         return MenuDiarioResponseDTO.builder()
                 .idMenuDiario(menu.getIdMenuDiario())

@@ -61,4 +61,18 @@ public class MenuDiarioController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PatchMapping("/fecha/{fecha}/hora-limite")
+    public ResponseEntity<Void> updateHoraLimiteByFecha(
+            @PathVariable String fecha,
+            @RequestParam String horaLimite) {
+        try {
+            menuDiarioService.updateHoraLimiteByFecha(
+                    java.time.LocalDate.parse(fecha),
+                    java.time.LocalTime.parse(horaLimite));
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

@@ -97,11 +97,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public UsuarioResponseDTO authenticate(String username, String password) {
         Usuario usuario = usuarioRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Credenciales incorrectas"));
+                .orElseThrow(() -> new RuntimeException("El usuario no existe"));
 
         // Comparación directa de password (sin encriptación por simplicidad del curso)
         if (!usuario.getPassword().equals(password)) {
-            throw new RuntimeException("Credenciales incorrectas");
+            throw new RuntimeException("La contraseña es incorrecta");
         }
 
         if (!Boolean.TRUE.equals(usuario.getActivo())) {
